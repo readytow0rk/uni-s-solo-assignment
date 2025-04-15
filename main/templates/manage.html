@@ -49,6 +49,21 @@
                             {% else %}
                                 <span class="text-muted">No actions</span>
                             {% endif %}
+                        
+                            {% with appt_datetime=appointment.appointment_date|add:" "|add:appointment.appointment_time %}
+                            {% if appointment.status in "Scheduled,Rescheduled" %}
+                                {% with appointment_datetime=appointment.appointment_date|stringformat:"s"|add:" "|add:appointment.appointment_time|stringformat:"s" %}
+                                    {% if appointment.appointment_date|stringformat:"s" == now.date|stringformat:"s" %}
+                                        {% if appointment.appointment_time|time:"H:i" <= now.time|time:"H:i"|add:"00:20" %}
+                                            <form method="post" action="{% url 'check_in' appointment.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success btn-sm mt-1">Check In</button>
+                                            </form>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        {% endwith %}
                         </td>
                     </tr>
                 {% endfor %}

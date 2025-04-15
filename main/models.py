@@ -50,3 +50,18 @@ class Appointment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.get_appointment_type_display()} on {self.appointment_date} at {self.appointment_time}"
+
+class CheckIn(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    checked_in_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} checked in for appointment on {self.appointment.appointment_date} at {self.appointment.appointment_time}"
+
+class CheckIn(models.Model):
+    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    checked_in_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.appointment} checked in at {self.checked_in_at}"

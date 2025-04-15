@@ -10,6 +10,7 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('reschedule/<int:appointment_id>/', views.reschedule, name='reschedule'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
+    path('checkin/<int:appointment_id>/', views.check_in, name='check_in'),
     
 ]
 
