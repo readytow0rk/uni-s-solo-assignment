@@ -11,6 +11,7 @@ from .models import Appointment, Doctor, Patient, CheckIn
 import datetime
 from django.shortcuts import get_object_or_404
 from .models import CheckIn
+from datetime import timedelta
 
 @login_required
 def check_in(request, appointment_id):
@@ -149,8 +150,9 @@ from datetime import datetime, timedelta
 
 @login_required
 def manage(request):
+    send_appointment_reminders(request)  # ← 👈 This triggers reminders when the page is loaded
+
     appointments = Appointment.objects.filter(user=request.user).order_by('-appointment_date', '-appointment_time')
-    now = datetime.now()
 
     if request.method == 'POST':
         appointment_id = request.POST.get('cancel_id')
@@ -174,7 +176,7 @@ def manage(request):
 
         return redirect('manage')
 
-    return render(request, 'manage.html', {'appointments': appointments, 'now': now})
+    return render(request, 'manage.html', {'appointments': appointments})
 
 @login_required
 def reschedule(request, appointment_id):
@@ -256,3 +258,24 @@ def check_in(request, appointment_id):
         messages.error(request, "Appointment not found.")
 
     return redirect('manage')
+
+
+def send_appointment_reminders(request):
+    if request.user.is_authenticated:
+        upcoming = Appointment.objects.filter(
+            user=request.user,
+            status__in=['Scheduled', 'Rescheduled'],
+            appointment_date=timezone.localdate() + timedelta(days=1)
+        )
+
+        for appt in upcoming:
+            reminder_key = f"reminder_sent_{appt.id}"
+            if not request.session.get(reminder_key):
+                send_mail(
+                    subject='📅 Reminder: Appointment Tomorrow',
+                    message=f"Hi {request.user.username},\n\nYou have an appointment with Dr. {appt.doctor.name} tomorrow at {appt.appointment_time}.",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[request.user.email],
+                    fail_silently=False,
+                )
+                request.session[reminder_key] = True
