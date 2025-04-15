@@ -2,52 +2,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>NHS</title>
+    <title>Register</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Optional: your custom CSS -->
-    <link rel="stylesheet" href="style.css">
+    <style>
+        textarea {
+            resize: none;
+            height: 60px !important;  /* make textareas smaller */
+        }
+        .form-label {
+            font-weight: 500;
+        }
+    </style>
 </head>
 <body>
-
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg bg-primary navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" a href="{% url 'home' %}">NHS</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
+            <a class="navbar-brand" href="{% url 'home' %}">NHS</a>
+    
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    
-                
-                    <li class="nav-item">
-                        
-                        <a class="nav-link" a href="{% url 'book' %}">Book</a>  <!-- ✅ this works -->
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'manage' %}">Manage appointments</a>
-                    </li>
-                    
-                    
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'book' %}">Book</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'manage' %}">Manage appointments</a>
+                        </li>
+                    {% endif %}
                 </ul>
+    
                 <span class="navbar-text text-light">
-                    <a class="nav-link d-inline text-light" href="{% url 'register' %}">Registration Online</a>
+                    {% if user.is_authenticated %}
+                        <span class="text-light">Hello, {{ user.username }}</span>
+                    {% else %}
+                        <a class="nav-link d-inline text-light" href="{% url 'login' %}">Login</a> |
+                        <a class="nav-link d-inline text-light" href="{% url 'register' %}">Register</a>
+                    {% endif %}
                 </span>
             </div>
         </div>
     </nav>
+<!-- Registration Form -->
+<div class="container mt-5 mb-5">
+    <div class="card p-4 shadow-sm">
+        <h3 class="text-center text-primary mb-4">Register as a Patient</h3>
 
-    <h1>Reister </h1>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-success text-center">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="row">
+                <!-- Left: Login Info -->
+                <div class="col-md-6">
+                    <h5 class="mb-3">Login Details</h5>
+                    <div class="mb-3">
+                        {{ user_form.username.label_tag }} {{ user_form.username }}
+                    </div>
+                    <div class="mb-3">
+                        {{ user_form.password.label_tag }} {{ user_form.password }}
+                    </div>
+                    <div class="mb-3">
+                        {{ user_form.confirm_password.label_tag }} {{ user_form.confirm_password }}
+                    </div>
+                </div>
+
+                <!-- Right: Patient Info -->
+                <div class="col-md-6">
+                    <h5 class="mb-3">Patient Information</h5>
+                    {% for field in patient_form %}
+                        <div class="mb-3">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger small">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary w-50">Register</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 </body>
 </html>
