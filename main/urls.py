@@ -7,7 +7,7 @@ urlpatterns = [
     path('manage/', views.manage, name='manage'),
     path('register/', views.register, name='register'),
     path('login/', views.login, name='login'),
-    
+    path('reschedule/<int:appointment_id>/', views.reschedule, name='reschedule'),
     
     
 ]

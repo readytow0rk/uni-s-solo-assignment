@@ -23,3 +23,40 @@ class PatientForm(forms.ModelForm):
     class Meta:
         model = Patient
         fields = ['first_name', 'last_name', 'address', 'age', 'height', 'weight', 'chronic_illnesses', 'phone_number', 'has_aids']
+
+
+
+
+from django import forms
+from .models import Appointment, Doctor
+import datetime
+
+class AppointmentForm(forms.ModelForm):
+    appointment_type = forms.ChoiceField(
+        choices=Appointment.TYPE_CHOICES,
+        widget=forms.RadioSelect,
+        label="Is it an emergency?"
+    )
+
+    appointment_date = forms.DateField(
+        widget=forms.SelectDateWidget,
+        label="Preferred Date",
+    )
+
+    class Meta:
+        model = Appointment
+        fields = ['appointment_type', 'appointment_date', 'appointment_time', 'doctor']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        today = datetime.date.today()
+        self.fields['appointment_date'].widget.years = [today.year]
+        self.fields['appointment_date'].widget.attrs['min'] = today + datetime.timedelta(days=1)
+        self.fields['appointment_date'].widget.attrs['max'] = today + datetime.timedelta(days=7)
+
+        self.fields['appointment_time'].widget = forms.Select(choices=[
+            (f"{h:02d}:00", f"{h:02d}:00") for h in range(9, 21)
+        ])
+
+        self.fields['doctor'].queryset = Doctor.objects.all()
