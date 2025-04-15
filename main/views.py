@@ -242,11 +242,16 @@ def reschedule(request, appointment_id):
 def check_in(request, appointment_id):
     try:
         appointment = Appointment.objects.get(id=appointment_id, user=request.user)
-        if not CheckIn.objects.filter(appointment=appointment).exists():
-            CheckIn.objects.create(appointment=appointment)
-            messages.success(request, "✅ You have checked in for your appointment.")
+
+        if appointment.status in ['Scheduled', 'Rescheduled']:
+            appointment.status = 'Checked-In'
+            appointment.save()
+
+            # Optional: log it to admin via email or log system
+
+            messages.success(request, '✅ You have checked in for your appointment.')
         else:
-            messages.info(request, "You have already checked in.")
+            messages.warning(request, 'Cannot check in. Appointment is not active.')
     except Appointment.DoesNotExist:
         messages.error(request, "Appointment not found.")
 

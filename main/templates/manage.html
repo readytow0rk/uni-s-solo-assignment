@@ -39,16 +39,16 @@
                         <td>{{ appointment.get_appointment_type_display }}</td>
                         <td>{{ appointment.status }}</td>
                         <td>
-                            {% if appointment.status == "Scheduled" %}
-                                <form method="post" style="display:inline;">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="cancel_id" value="{{ appointment.id }}">
-                                    <button class="btn btn-danger btn-sm">Cancel</button>
-                                </form>
-                                <a href="{% url 'reschedule' appointment.id %}" class="btn btn-warning btn-sm">Reschedule</a>
-                            {% else %}
-                                <span class="text-muted">No actions</span>
-                            {% endif %}
+                            {% if appointment.status in "Scheduled Rescheduled" %}
+    <form method="post" style="display:inline;">
+        {% csrf_token %}
+        <input type="hidden" name="cancel_id" value="{{ appointment.id }}">
+        <button class="btn btn-danger btn-sm">Cancel</button>
+    </form>
+    <a href="{% url 'reschedule' appointment.id %}" class="btn btn-warning btn-sm">Reschedule</a>
+{% else %}
+    <span class="text-muted">No actions</span>
+{% endif %}
                         
                             {% with appt_datetime=appointment.appointment_date|add:" "|add:appointment.appointment_time %}
                             {% if appointment.status in "Scheduled,Rescheduled" %}
