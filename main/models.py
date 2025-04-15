@@ -8,23 +8,23 @@ class Patient(models.Model):
     last_name = models.CharField(max_length=100)
     address = models.TextField()
     age = models.PositiveIntegerField()
-    height = models.DecimalField(max_digits=5, decimal_places=2)  # e.g., 180.00
-    weight = models.DecimalField(max_digits=5, decimal_places=2)  # e.g., 75.00
+    height = models.DecimalField(max_digits=5, decimal_places=2)
+    weight = models.DecimalField(max_digits=5, decimal_places=2)
     chronic_illnesses = models.TextField()
     phone_number = models.CharField(max_length=20)
+    sms_gateway = models.CharField(max_length=100, default="default.com")  # 💬 email-to-text
     has_aids = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
-    from django.db import models
-from django.contrib.auth.models import User
 
 class Doctor(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
+
 
 class Appointment(models.Model):
     TYPE_CHOICES = [

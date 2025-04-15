@@ -11,7 +11,7 @@
     <style>
         textarea {
             resize: none;
-            height: 60px !important;  /* make textareas smaller */
+            height: 60px !important;
         }
         .form-label {
             font-weight: 500;
@@ -46,55 +46,77 @@
             </div>
         </div>
     </nav>
-<!-- Registration Form -->
-<div class="container mt-5 mb-5">
-    <div class="card p-4 shadow-sm">
-        <h3 class="text-center text-primary mb-4">Register as a Patient</h3>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-success text-center">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+    <!-- Registration Form -->
+    <div class="container mt-5 mb-5">
+        <div class="card p-4 shadow-sm">
+            <h3 class="text-center text-primary mb-4">Register as a Patient</h3>
 
-        <form method="post" novalidate>
-            {% csrf_token %}
-            <div class="row">
-                <!-- Left: Login Info -->
-                <div class="col-md-6">
-                    <h5 class="mb-3">Login Details</h5>
-                    <div class="mb-3">
-                        {{ user_form.username.label_tag }} {{ user_form.username }}
-                    </div>
-                    <div class="mb-3">
-                        {{ user_form.password.label_tag }} {{ user_form.password }}
-                    </div>
-                    <div class="mb-3">
-                        {{ user_form.confirm_password.label_tag }} {{ user_form.confirm_password }}
-                    </div>
-                </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success text-center">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
 
-                <!-- Right: Patient Info -->
-                <div class="col-md-6">
-                    <h5 class="mb-3">Patient Information</h5>
-                    {% for field in patient_form %}
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="row">
+                    <!-- Left: Login Info -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Login Details</h5>
                         <div class="mb-3">
-                            {{ field.label_tag }}
-                            {{ field }}
-                            {% if field.errors %}
-                                <div class="text-danger small">{{ field.errors }}</div>
-                            {% endif %}
+                            {{ user_form.username.label_tag }} {{ user_form.username }}
                         </div>
-                    {% endfor %}
+                        <div class="mb-3">
+                            {{ user_form.password.label_tag }} {{ user_form.password }}
+                        </div>
+                        <div class="mb-3">
+                            {{ user_form.confirm_password.label_tag }} {{ user_form.confirm_password }}
+                        </div>
+                    </div>
+
+                    <!-- Right: Patient Info -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3">Patient Information</h5>
+
+                        <div class="mb-3">
+                            {{ patient_form.first_name.label_tag }} {{ patient_form.first_name }}
+                        </div>
+                        <div class="mb-3">
+                            {{ patient_form.last_name.label_tag }} {{ patient_form.last_name }}
+                        </div>
+                        <div class="mb-3">
+                            {{ patient_form.address.label_tag }} {{ patient_form.address }}
+                        </div>
+                        <div class="mb-3">
+                            {{ patient_form.age.label_tag }} {{ patient_form.age }}
+                        </div>
+                        <div class="mb-3">
+                            {{ patient_form.height.label_tag }} {{ patient_form.height }}
+                        </div>
+                        <div class="mb-3">
+                            {{ patient_form.weight.label_tag }} {{ patient_form.weight }}
+                        </div>
+                        <div class="mb-3">
+                            {{ patient_form.chronic_illnesses.label_tag }} {{ patient_form.chronic_illnesses }}
+                        </div>
+                        <div class="mb-3">
+                            {{ patient_form.phone_number.label_tag }} {{ patient_form.phone_number }}
+                        </div>
+                        <div class="mb-3">
+                            {{ patient_form.sms_gateway.label_tag }} {{ patient_form.sms_gateway }}
+                        </div>
+                        <div class="form-check mb-3">
+                            {{ patient_form.has_aids }} {{ patient_form.has_aids.label_tag }}
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="text-center mt-3">
-                <button type="submit" class="btn btn-primary w-50">Register</button>
-            </div>
-        </form>
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-primary w-50">Register</button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
-
 </body>
 </html>
