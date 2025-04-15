@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,37 +28,26 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    
+                
                     <li class="nav-item">
-                        <a class="nav-link" href="index.html">Home Page</a>
+                        
+                        <a class="nav-link" a href="{% url 'book' %}">Book</a>  <!-- ✅ this works -->
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="location.html">Our Location</a>
+                        <a class="nav-link" href="{% url 'manage' %}">Manage appointments</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="book.html">Book an Appointment</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="dermatology.html">Dermatology</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="doctors.html">Doctor List</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="contact.html">Contact Us</a>
-                    </li>
+                    
+                    
                 </ul>
                 <span class="navbar-text text-light">
-                    <a class="nav-link d-inline text-light" href="register.html">Registration Online</a>
+                    <a class="nav-link d-inline text-light" href="{% url 'register' %}">Registration Online</a>
                 </span>
             </div>
         </div>
     </nav>
 
-    <!-- Centered Content -->
-    <div class="container text-center mt-5">
-        <h1>Welcome to NHS</h1>
-        <p class="lead">Dermatology</p>
-    </div>
+    <h1>Manage an appointment </h1>
 
 </body>
 </html>
