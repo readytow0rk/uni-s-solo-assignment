@@ -172,32 +172,50 @@ def reschedule(request, appointment_id):
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
-            date = form.cleaned_data['appointment_date']
-            time = form.cleaned_data['appointment_time']
-            doctor = form.cleaned_data['doctor']
+            new_date = form.cleaned_data['appointment_date']
+            new_time = form.cleaned_data['appointment_time']
+            new_doctor = form.cleaned_data['doctor']
 
-            exists = Appointment.objects.filter(
-                doctor=doctor,
-                appointment_date=date,
-                appointment_time=time,
+            conflict = Appointment.objects.filter(
+                doctor=new_doctor,
+                appointment_date=new_date,
+                appointment_time=new_time,
                 status='Scheduled'
             ).exclude(id=appointment.id).exists()
 
-            if exists:
-                messages.error(request, f"{doctor.name} is already booked at that time.")
+            if conflict:
+                messages.error(request, f"{new_doctor.name} is already booked at {new_time}.")
             else:
-                appointment.appointment_date = date
-                appointment.appointment_time = time
-                appointment.doctor = doctor
+                appointment.appointment_date = new_date
+                appointment.appointment_time = new_time
+                appointment.doctor = new_doctor
                 appointment.status = 'Rescheduled'
                 appointment.save()
-                messages.success(request, 'Appointment rescheduled successfully.')
+
+                # 📩 Send email to patient
+                send_mail(
+                    subject='📅 Appointment Rescheduled',
+                    message=(
+                        f"Hi {request.user.username},\n\n"
+                        f"Your appointment has been successfully rescheduled with Dr. {new_doctor.name} "
+                        f"to {new_date} at {new_time}.\n\n"
+                        f"- Hospital System"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[request.user.email],
+                    fail_silently=False,
+                )
+
+                messages.success(request, "✅ Appointment rescheduled successfully.")
                 return redirect('manage')
     else:
+        # Format initial time for select dropdown
+        initial_time = appointment.appointment_time.strftime("%H:%M")
+
         form = AppointmentForm(initial={
             'appointment_type': appointment.appointment_type,
             'appointment_date': appointment.appointment_date,
-            'appointment_time': appointment.appointment_time.strftime("%H:%M"),
+            'appointment_time': initial_time,
             'doctor': appointment.doctor,
         })
 
