@@ -3,15 +3,18 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login as auth_login
 from django.contrib.auth.decorators import login_required
-from .forms import UserRegisterForm, PatientForm, AppointmentForm
-from .models import Appointment, Doctor
-import datetime
 from django.core.mail import send_mail
-from .models import Appointment, Doctor, Patient  
+from django.conf import settings
+
+from .forms import UserRegisterForm, PatientForm, AppointmentForm
+from .models import Appointment, Doctor, Patient
+
+import datetime
 
 
 def home(request):
     return render(request, 'index.html')
+
 
 @login_required
 def book(request):
@@ -19,9 +22,7 @@ def book(request):
         form = AppointmentForm(request.POST)
         if form.is_valid():
             appointment_type = form.cleaned_data['appointment_type']
-
-            patient = Patient.objects.get(user=request.user)
-            to_email = f"{patient.phone_number}@{patient.sms_gateway}"
+            user_email = request.user.email
 
             if appointment_type == 'AE':
                 Appointment.objects.create(
@@ -33,16 +34,13 @@ def book(request):
                     status='Scheduled'
                 )
 
-                try:
-                    send_mail(
-                        subject='🚨 Emergency Appointment Registered',
-                        message='You have been registered for an emergency visit. Please go to A&E immediately.',
-                        from_email='caspi.ready.again@gmail.com',
-                        recipient_list=[to_email],
-                        fail_silently=False,
-                    )
-                except Exception as e:
-                    print(f"SMS failed: {e}")
+                send_mail(
+                    subject='🚨 Emergency Appointment Confirmation',
+                    message='You are registered for an emergency appointment. Please go to A&E immediately.',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user_email],
+                    fail_silently=False,
+                )
 
                 messages.success(request, '🚨 Emergency registered. Go to A&E immediately.')
                 return render(request, 'book.html', {'form': AppointmentForm()})
@@ -71,16 +69,13 @@ def book(request):
                     status='Scheduled'
                 )
 
-                try:
-                    send_mail(
-                        subject='✅ Appointment Confirmed',
-                        message=f'Your appointment with Dr. {doctor.name} is scheduled for {date} at {time}.',
-                        from_email='caspi.ready.again@gmail.com',
-                        recipient_list=[to_email],
-                        fail_silently=False,
-                    )
-                except Exception as e:
-                    print(f"SMS failed: {e}")
+                send_mail(
+                    subject='✅ Appointment Booked',
+                    message=f"Hi {request.user.username}, your appointment with Dr. {doctor.name} has been booked for {date} at {time}.",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[user_email],
+                    fail_silently=False,
+                )
 
                 messages.success(request, '✅ Appointment booked successfully!')
                 return render(request, 'book.html', {'form': AppointmentForm()})
@@ -88,7 +83,8 @@ def book(request):
         form = AppointmentForm()
 
     return render(request, 'book.html', {'form': form})
-    
+
+
 def login(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -103,6 +99,7 @@ def login(request):
 
     return render(request, 'login.html')
 
+
 def register(request):
     if request.method == 'POST':
         user_form = UserRegisterForm(request.POST)
@@ -111,30 +108,23 @@ def register(request):
         if user_form.is_valid() and patient_form.is_valid():
             user = user_form.save(commit=False)
             user.set_password(user_form.cleaned_data['password'])
+            user.email = user_form.cleaned_data['email']  # ✅ Save email from form
             user.save()
 
             patient = patient_form.save(commit=False)
             patient.user = user
             patient.save()
 
-            # 🔔 Send welcome SMS
-            to_email = f"{patient.phone_number}@{patient.sms_gateway}"
-            try:
-                send_mail(
-                    subject='✅ Welcome to Hospital System',
-                    message='Thank you for registering. You’ll receive appointment notifications here!',
-                    from_email='caspi.ready.again@gmail.com',
-                    recipient_list=[to_email],
-                    fail_silently=False,
-                )
-            except Exception as e:
-                print(f"SMS via email failed: {e}")
+            send_mail(
+                subject='👋 Welcome to the Appointment System',
+                message=f"Hi {user.username}, your account has been created successfully. You can now book appointments.",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
 
             messages.success(request, '✅ Account created successfully! You can now log in.')
-            return render(request, 'register.html', {
-                'user_form': UserRegisterForm(),
-                'patient_form': PatientForm(),
-            })
+            return redirect('login')
     else:
         user_form = UserRegisterForm()
         patient_form = PatientForm()
@@ -143,6 +133,7 @@ def register(request):
         'user_form': user_form,
         'patient_form': patient_form,
     })
+
 
 @login_required
 def manage(request):
@@ -164,6 +155,7 @@ def manage(request):
         return redirect('manage')
 
     return render(request, 'manage.html', {'appointments': appointments})
+
 
 @login_required
 def reschedule(request, appointment_id):

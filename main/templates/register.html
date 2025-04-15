@@ -22,7 +22,7 @@
     <nav class="navbar navbar-expand-lg bg-primary navbar-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'home' %}">NHS</a>
-    
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     {% if user.is_authenticated %}
@@ -34,7 +34,7 @@
                         </li>
                     {% endif %}
                 </ul>
-    
+
                 <span class="navbar-text text-light">
                     {% if user.is_authenticated %}
                         <span class="text-light">Hello, {{ user.username }}</span>
@@ -47,7 +47,6 @@
         </div>
     </nav>
 
-    <!-- Registration Form -->
     <div class="container mt-5 mb-5">
         <div class="card p-4 shadow-sm">
             <h3 class="text-center text-primary mb-4">Register as a Patient</h3>
@@ -61,11 +60,14 @@
             <form method="post" novalidate>
                 {% csrf_token %}
                 <div class="row">
-                    <!-- Left: Login Info -->
+                    <!-- Login Info -->
                     <div class="col-md-6">
                         <h5 class="mb-3">Login Details</h5>
                         <div class="mb-3">
                             {{ user_form.username.label_tag }} {{ user_form.username }}
+                        </div>
+                        <div class="mb-3">
+                            {{ user_form.email.label_tag }} {{ user_form.email }}
                         </div>
                         <div class="mb-3">
                             {{ user_form.password.label_tag }} {{ user_form.password }}
@@ -75,40 +77,18 @@
                         </div>
                     </div>
 
-                    <!-- Right: Patient Info -->
+                    <!-- Patient Info -->
                     <div class="col-md-6">
                         <h5 class="mb-3">Patient Information</h5>
-
-                        <div class="mb-3">
-                            {{ patient_form.first_name.label_tag }} {{ patient_form.first_name }}
-                        </div>
-                        <div class="mb-3">
-                            {{ patient_form.last_name.label_tag }} {{ patient_form.last_name }}
-                        </div>
-                        <div class="mb-3">
-                            {{ patient_form.address.label_tag }} {{ patient_form.address }}
-                        </div>
-                        <div class="mb-3">
-                            {{ patient_form.age.label_tag }} {{ patient_form.age }}
-                        </div>
-                        <div class="mb-3">
-                            {{ patient_form.height.label_tag }} {{ patient_form.height }}
-                        </div>
-                        <div class="mb-3">
-                            {{ patient_form.weight.label_tag }} {{ patient_form.weight }}
-                        </div>
-                        <div class="mb-3">
-                            {{ patient_form.chronic_illnesses.label_tag }} {{ patient_form.chronic_illnesses }}
-                        </div>
-                        <div class="mb-3">
-                            {{ patient_form.phone_number.label_tag }} {{ patient_form.phone_number }}
-                        </div>
-                        <div class="mb-3">
-                            {{ patient_form.sms_gateway.label_tag }} {{ patient_form.sms_gateway }}
-                        </div>
-                        <div class="form-check mb-3">
-                            {{ patient_form.has_aids }} {{ patient_form.has_aids.label_tag }}
-                        </div>
+                        {% for field in patient_form %}
+                            <div class="mb-3">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="text-danger small">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -118,5 +98,6 @@
             </form>
         </div>
     </div>
+
 </body>
 </html>

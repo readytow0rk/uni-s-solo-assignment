@@ -1,15 +1,18 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Patient
+from .models import Patient, Appointment, Doctor
+import datetime
+
 
 class UserRegisterForm(forms.ModelForm):
     username = forms.CharField(required=True, label="Username")
+    email = forms.EmailField(required=True, label="Email")
     password = forms.CharField(widget=forms.PasswordInput, label="Password", required=True)
     confirm_password = forms.CharField(widget=forms.PasswordInput, label="Confirm Password", required=True)
 
     class Meta:
         model = User
-        fields = ['username', 'password']
+        fields = ['username', 'email', 'password']
 
     def clean(self):
         cleaned_data = super().clean()
@@ -22,14 +25,17 @@ class UserRegisterForm(forms.ModelForm):
 class PatientForm(forms.ModelForm):
     class Meta:
         model = Patient
-        fields = ['first_name', 'last_name', 'address', 'age', 'height', 'weight', 'chronic_illnesses', 'phone_number', 'has_aids']
+        fields = [
+            'first_name',
+            'last_name',
+            'address',
+            'age',
+            'height',
+            'weight',
+            'chronic_illnesses',
+            'has_aids'
+        ]
 
-
-
-
-from django import forms
-from .models import Appointment, Doctor
-import datetime
 
 class AppointmentForm(forms.ModelForm):
     appointment_type = forms.ChoiceField(
