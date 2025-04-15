@@ -58,6 +58,11 @@
         <p>You have no appointments yet.</p>
     {% endif %}
 </div>
-
+<div class="container mt-5 text-center">
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger px-20 py-10 mt-20 btn-lg btn-primary">Sign Out</button>
+    </form>
+</div>
 </body>
 </html>

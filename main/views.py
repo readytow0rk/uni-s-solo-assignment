@@ -26,8 +26,8 @@ def book(request):
                     appointment_time=datetime.datetime.now().time(),
                     status='Scheduled'
                 )
-                messages.success(request, 'Emergency registered. Go to A&E department immediately!')
-                return redirect('home')
+                messages.success(request, '🚨 Emergency registered. Go to A&E immediately.')
+                return render(request, 'book.html', {'form': AppointmentForm()})
 
             date = form.cleaned_data['appointment_date']
             time = form.cleaned_data['appointment_time']
@@ -41,7 +41,7 @@ def book(request):
             ).exists()
 
             if exists:
-                messages.error(request, f"{doctor.name} is already booked at that time.")
+                messages.error(request, f"{doctor.name} is already booked at {time}.")
             else:
                 Appointment.objects.create(
                     user=request.user,
@@ -52,8 +52,8 @@ def book(request):
                     doctor=doctor,
                     status='Scheduled'
                 )
-                messages.success(request, 'Your appointment was booked successfully!')
-                return redirect('home')
+                messages.success(request, '✅ Appointment booked successfully!')
+                return render(request, 'book.html', {'form': AppointmentForm()})
     else:
         form = AppointmentForm()
 
@@ -87,8 +87,11 @@ def register(request):
             patient.user = user
             patient.save()
 
-            messages.success(request, 'Account created successfully!')
-            return redirect('home')
+            messages.success(request, '✅ Account created successfully! You can now log in.')
+            return render(request, 'register.html', {
+                'user_form': UserRegisterForm(),
+                'patient_form': PatientForm(),
+            })
     else:
         user_form = UserRegisterForm()
         patient_form = PatientForm()
@@ -108,11 +111,10 @@ def manage(request):
             try:
                 appointment = Appointment.objects.get(id=appointment_id, user=request.user)
                 if appointment.status == 'Scheduled':
-                    appointment.status = 'Cancelled'
-                    appointment.save()
-                    messages.success(request, 'Appointment cancelled successfully.')
+                    appointment.delete()
+                    messages.success(request, 'Appointment cancelled and deleted.')
                 else:
-                    messages.warning(request, 'Only scheduled appointments can be cancelled.')
+                    messages.warning(request, 'Only scheduled appointments can be deleted.')
             except Appointment.DoesNotExist:
                 messages.error(request, 'Appointment not found.')
 
